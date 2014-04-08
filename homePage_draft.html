@@ -1,0 +1,181 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Home Page Draft</title>
+</head>
+
+<script type="text/javascript">
+  WebFontConfig = {
+    google: { families: [ 'Muli:300:latin', 'Titillium+Web:400,700:latin' ] }
+  };
+  (function() {
+    var wf = document.createElement('script');
+    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })(); </script>
+ </script>
+  
+<script>
+	function canvas(){
+	
+		var freqX = Math.floor((Math.random()*10)+1),
+		freqY = Math.floor((Math.random()*10)+1),
+		phi = Math.floor((Math.random()*15)+1),
+		modFreqX = Math.floor((Math.random()*10)+1), 
+		modFreqY = Math.floor((Math.random()*10)+1),
+		connectionR = 0,
+		particles = 1500,
+		x1 = 0,
+		y1 = 0,  
+		angle = 0,
+		orbSpeed = 0;
+		orbSize =0;
+		var plotx = new Array();
+		var ploty = new Array();
+		width = 0;
+		height = 0;
+		
+		resize();// resize onload
+		
+		function resize() {///////////////////////////////////////////resize function
+			var canvas = document.getElementById('codeart');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			ctx = canvas.getContext('2d');
+			width = window.innerWidth;
+			height = window.innerHeight;
+	
+			////////////////////////////////////////////////////////variables
+				
+			function plot( i) {/////////////////////////////////////plot x1 and y1
+			  angle = map(i, 0, particles, 0, Math.PI*2);
+			  x1 = Math.sin(angle * freqX) + ((Math.PI/180)*phi) * Math.cos(angle * modFreqX);
+			  y1 = Math.sin(angle * freqX)  * Math.cos(angle * modFreqY);
+				  
+			  x1 = x1 * (width/3);
+			  y1 = y1 * (height/3);
+			
+				plotx[i] = x1;
+				ploty[i] = y1;
+				
+			  if (i<particles) {
+				plot(i+1);
+			  }
+			}///////////////////////////////////////////////////////end plot function	
+			
+			//initialize plot function at the center
+			ctx.translate(width/2, height/2);
+			plot(0);
+		}///////////////////////////////////////////end of resize function
+		
+		function draw(){//draw///////////////////////////////
+			orb( orbSpeed);
+			orbSpeed += 1;
+			  if ( orbSpeed == particles){
+				orbSpeed = 0;
+			  } 
+			  else if (orbSpeed == 0){
+				orbSpeed += 1;
+			  }
+		}/////end of draw function
+		
+		//initiates loop/////////////////////////////
+		function loop() {
+			  window.setTimeout(loop, 10);
+			  draw();
+			  newBG();
+			}
+		loop();
+		
+		function newBG(){/////////////new background
+				//ctx.clearRect(0-canvas.width/2,0-canvas.height/2,canvas.width, canvas.height);// new background
+				ctx.beginPath();
+				ctx.rect(0-width/2,0-height/2,width,height);
+				ctx.fillStyle = "rgba(26, 26, 26, 0.5)";
+				ctx.fill();
+				
+				//draw text
+				ctx.font = 'bold 50pt Titillium';
+				ctx.fillStyle = "rgb(15, 180, 244)";
+				ctx.fillText('<codeart>', 0, 0);
+			}/////////////end of new background
+		
+		function orb( i){////orb function draws the orb and lines
+		  orbSize = map(width, 0, 1500, .5, 3);
+		  
+		  ctx.beginPath();
+		  ctx.lineWidth = '1';
+		  ctx.arc(plotx[i], ploty[i], orbSize, 0, Math.PI*2);
+		  //ctx.stroke();
+		  ctx.fillStyle = "hsla(250, 50%, 60%,100)";
+		  ctx.fill();
+		  
+		  //draw connections
+		  connectionR = map(width, 0, 1500, 10, 100);
+		  for (k=0; k<=particles; k+=1){
+			  var delta = Math.sqrt( (plotx[i]-plotx[k])*(plotx[i]-plotx[k]) + (ploty[i]-ploty[k])*(ploty[i]-ploty[k]));
+			  var colorRange = map(delta, 30, 70, 200, 300);
+			  
+			  if (delta <= connectionR) {
+				  ctx.beginPath();
+				  ctx.lineWidth = '.5';
+				  ctx.lineTo(plotx[i], ploty[i]);
+				  ctx.lineTo(plotx[k], ploty[k]);
+				  ctx.strokeStyle = "hsla("+colorRange+", 50%, 50%, 50)";
+				  ctx.stroke();
+			  }
+		  }
+		}//////end of orb function
+		
+		//value map////////////////////////
+		function map(value, start1, stop1, start2, stop2) {
+			return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+		}
+		
+		//initialize function when screen is resized
+		window.addEventListener('resize', resize, false);
+		window.addEventListener('orientationchange', resize, false);
+		
+	}
+</script>
+
+<style type="text/css">
+@import url(http://fonts.googleapis.com/css?family=Muli:300|Titillium+Web:400,700);
+
+body{
+	background: white;
+	color: black;
+	margin: 0;
+}
+canvas { 
+	background: white;
+	font-family: 'Titillium Web';
+	font-family: 'Muli', sans-serif;
+}
+#codeart{
+	margin: 0;
+	pading: 0;
+	border: 1px solid black;
+}
+h1{
+	font-family: 'Titillium Web', sans-serif;
+	font-size: 50px;
+	text-align: right;
+	margin: 0px 100px 0 0;
+	font-weight; 700;
+}
+p{
+	text-align: center;
+	font-family: 'Muli', sans-serif;
+	font-size: 25px;
+}
+</style>
+
+<body onload="canvas()">
+	<canvas id="codeart"></canvas>
+</body>
+</html>
